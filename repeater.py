@@ -135,7 +135,7 @@ def send_text(message):
 
         for word in words:
             markup.add(word)
-        bot.send_message(message.chat.id, 'asking', reply_markup = markup)
+        #bot.send_message(message.chat.id, 'asking', reply_markup = markup)
 
         d['mode'] = 'waiting for the answer'
         d['candidates'] = words[:4]
@@ -198,6 +198,17 @@ def send_text(message):
             send(f'The word "{message.text}" is marked as unknown')
 
         d['mode'] = 'waiting for a word'
+
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        df = pd.read_csv('freq.csv').set_index('word')
+        words = list(np.random.choice(df[df.status == 0].head(500).index, 4, replace=False)) + ['ALLRIGHT']
+
+        for word in words:
+            markup.add(word)
+        #bot.send_message(message.chat.id, 'asking', reply_markup = markup)
+
+        d['mode'] = 'waiting for the answer'
+        d['candidates'] = words[:4]
 
     dump()
 
