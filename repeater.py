@@ -155,21 +155,6 @@ def send_text(message):
 
         send(f'all: {amount}, known={known}, unknown={unknown}')
 
-
-        '''
-        if vsize() == 0:
-            send("Пока нет ни одного слова. Чтобы добавить набери /word")
-        else:
-            lines = [word + ' - ' + v[0][word] for word in sorted(v[0].keys()) if not word.startswith('_')]
-
-            for i in range(0, len(lines), 100):
-                mes = '\n'.join(lines[i:i+100])
-                send(mes)
-            options()
-
-        '''
-        options()
-        
     elif message.text == '/delete':
         d['mode'] = 'waiting for deletion'
         bot.send_message(message.chat.id, "Какое слово удалить?")
@@ -212,41 +197,7 @@ def send_text(message):
 
             send(f'The word "{message.text}" is marked as unknown')
 
-
-
-
-
-        '''
-        v[0]['_all'] = min(v[0]['_all'] + 1, 100)
-        v[0]['_correct'] = (v[0]['_correct'] + [int(message.text == d['correct'])])[-100:]
-
-
-
-        print ('correct = ', v[0]['_correct'])
-
-        with open('cache.json', 'w') as f:
-            json.dump(dict(), f)
-
-        
-        rate = 0
-        if v[0]['_all'] > 0:
-            rate = 100. * sum(v[0]['_correct']) / v[0]['_all']
-
-
-        print ('message.text = ', message.text)
-        print ('correct = ', d['correct'])
-
-
-        if message.text == d['correct']:
-            send("Хорошая зая! Точность: {:.2f}%".format(rate))
-        else:
-            send("{} - {}\nВсе равно зая молодец! Точность: {:.2f}%".format(d['question'], v[0][d['question']], rate))
-        '''
-
-
-
         d['mode'] = 'waiting for a word'
-        options()
 
     dump()
 
