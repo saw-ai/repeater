@@ -1,6 +1,6 @@
 # check if I already working with newest version
 import os
-my_pid = os.getpid()
+my_pid = str(os.getpid())
 
 from subprocess import check_output
 try:
