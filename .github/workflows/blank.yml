@@ -18,4 +18,4 @@ jobs:
           privateKey: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
           local: "main.py"
-          target: "${{ secrets.REMOTE_DIR }}"    
+          remote: "${{ secrets.REMOTE_DIR }}"    
