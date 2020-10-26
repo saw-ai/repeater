@@ -1,7 +1,15 @@
 # check if I already working with newest version
+import os
+my_pid = os.getpid()
+
 from subprocess import check_output
 try:
-    pid = check_output("ps aux | grep 'python3 repeater.py' | grep -v grep | awk '{print $2}'", shell=True).decode()
+    pids = check_output("ps aux | grep 'python3 repeater.py' | grep -v grep | awk '{print $2}'", shell=True).decode().split()
+    pid = None
+    for pid_ in pids:
+        if pid_ != my_pid:
+            pid = pid_
+            break
 except:
     pid = None
 
