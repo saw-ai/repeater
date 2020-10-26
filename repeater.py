@@ -5,13 +5,8 @@ my_pid = os.getpid()
 from subprocess import check_output
 try:
     pids = check_output("ps aux | grep 'python3 repeater.py' | grep -v grep | awk '{print $2}'", shell=True).decode().split()
-    pid = None
-    for pid_ in pids:
-        if pid_ != my_pid:
-            pid = pid_
-            break
 except:
-    pid = None
+    pids = None
 
 hash = check_output("md5sum repeater.py", shell=True).decode().split()[0]
 try:
@@ -19,11 +14,13 @@ try:
 except:
     matches = False
 
-if pid and matches:
+if pids and matches:
     exit()
 
-if pid:
-    check_output(f"kill -9 {pid}", shell=True)
+if pids:
+    for pid in pids:
+        if pid != my_pid:
+            check_output(f"kill -9 {pid}", shell=True)
 
 with open("hash.md5", "w") as f:
     f.write(hash)
