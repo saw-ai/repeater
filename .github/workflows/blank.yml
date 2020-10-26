@@ -11,12 +11,11 @@ jobs:
     - uses: actions/checkout@master
       
     - name: Copying files to server
-      uses: saw-ai/repeater@master
+      uses: garygrossgarten/github-action-scp@release
       with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          privateKey: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
-          rm: true
-          source: "html/"
+          local: "main.py"
           target: "${{ secrets.REMOTE_DIR }}"    
