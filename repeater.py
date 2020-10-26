@@ -4,7 +4,7 @@ my_pid = str(os.getpid())
 
 from subprocess import check_output
 try:
-    pids = check_output("ps aux | grep 'python3 repeater.py' | grep -v grep | awk '{print $2}'", shell=True).decode().split()
+    pids = check_output("ps aux | grep 'python3 repeater.py' | grep -v grep | grep -v 'cd /root/' | awk '{print $2}'", shell=True).decode().split()
 except:
     pids = None
 
