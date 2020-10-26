@@ -5,7 +5,7 @@ try:
 except:
     pid = None
 
-hash = check_output("md5sum repeater.py").decode().split()[0]
+hash = check_output("md5sum repeater.py", shell=True).decode().split()[0]
 try:
     matches = open('hash.md5').read().strip() == hash
 except:
@@ -15,7 +15,7 @@ if pid and matches:
     exit()
 
 if pid:
-    check_output(f"kill -9 {pid}")
+    check_output(f"kill -9 {pid}", shell=True)
 
 with open("hash.md5", "w") as f:
     f.write(hash)
