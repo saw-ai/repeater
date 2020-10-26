@@ -1,3 +1,28 @@
+# check if I already working with newest version
+from subprocess import check_output
+try:
+    pid = check_output("ps aux | grep 'python3 repeater.py' | grep -v grep | awk '{print $2}'", shell=True).decode()
+except:
+    pid = None
+
+hash = check_output("md5sum repeater.py").decode().split()[0]
+try:
+    matches = open('hash.md5').read().strip() == hash
+except:
+    matches = False
+
+if pid and matches:
+    exit()
+
+if pid:
+    check_output(f"kill -9 {pid}")
+
+with open("hash.md5", "w") as f:
+    f.write(hash)
+
+
+# STARTING ...
+
 import telebot
 from telebot import types
 import json
