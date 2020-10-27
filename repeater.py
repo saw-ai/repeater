@@ -75,11 +75,11 @@ def create_picture():
     for i in range(img.size[0]):    # For every pixel:
         for j in range(img.size[1]):
             if bits[i][j] == 0:
-                pixels[i,j] = (255, 255, 255)
+                pixels[j, i] = (255, 255, 255)
             elif bits[i][j] == 1:
-                pixels[i, j] = (0, 255, 0)
+                pixels[j, i] = (0, 255, 0)
             elif bits[i][j] == 2:
-                pixels[i, j] = (255, 0, 0)
+                pixels[j, i] = (255, 0, 0)
 
     img.save('picture.png')
 
