@@ -66,11 +66,11 @@ def dump():
 
 def create_picture():
     bits = pd.read_csv('freq.csv').set_index('word')['status'].values
-    n = int(np.sqrt(len(bits)) + 0.5)
+    n = int(round(np.sqrt(len(bits)) + 0.5))
     bits = list(bits) + [0] * (n ** 2 - len(bits))
     bits = np.array(bits).reshape(n, n)
 
-    img = Image.new( 'RGB', (255,255), "black") # Create a new black image
+    img = Image.new( 'RGB', (n, n), "black") # Create a new black image
     pixels = img.load() # Create the pixel map
     for i in range(img.size[0]):    # For every pixel:
         for j in range(img.size[1]):
