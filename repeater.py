@@ -34,6 +34,9 @@ import json
 import random
 import numpy as np
 import pandas as pd
+from PIL import Image
+
+
 
 bot = telebot.TeleBot('1307955102:AAFjWxksNaeQNpna8kGMcRucCxwLz2GfYDE')
 
@@ -59,6 +62,27 @@ def load():
 
 def dump():
     json.dump(v[0], open('vocab.json', 'w'))
+
+
+def create_picture():
+    bits = pd.read_csv('freq.csv').set_index('word')['status'].values
+    n = int(np.sqrt(len(bits)) + 0.5)
+    bits = list(bits) + [0] * (n ** 2 - len(bits))
+    bits = np.array(bits).reshape(n, n)
+
+    img = Image.new( 'RGB', (255,255), "black") # Create a new black image
+    pixels = img.load() # Create the pixel map
+    for i in range(img.size[0]):    # For every pixel:
+        for j in range(img.size[1]):
+            if bits[i][j] == 0:
+                pixels[i,j] = (255, 255, 255)
+            elif bits[i][j] == 1:
+                pixels[i, j] = (0, 255, 0)
+            elif bits[i][j] == 2:
+                pixels[i, j] = (255, 0, 0)
+
+    img.save('picture.png')
+
 
 
 v = dict()
@@ -138,6 +162,13 @@ def send_text(message):
         d['candidates'] = words[:4]
         d['markup'] = markup
 
+
+    elif message.text == '/photo':
+        create_picture()
+        img = open('picture.png', 'rb')
+        bot.send_chat_action(message.chat.id, 'upload_photo')
+        bot.send_photo(message.chat.id, img)
+        img.close()
 
     elif message.text == '/word':
         d['mode'] = 'waiting for a word'
