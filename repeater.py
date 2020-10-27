@@ -132,7 +132,7 @@ def send_text(message):
 
         for word in words:
             markup.add(word)
-        #bot.send_message(message.chat.id, 'asking', reply_markup = markup)
+        bot.send_message(message.chat.id, 'asking', reply_markup = markup)
 
         d['mode'] = 'waiting for the answer'
         d['candidates'] = words[:4]
@@ -209,7 +209,7 @@ def send_text(message):
 
         for word in words:
             markup.add(word)
-        #bot.send_message(message.chat.id, 'asking', reply_markup = markup)
+        bot.send_message(message.chat.id, 'asking', reply_markup = markup)
 
         d['mode'] = 'waiting for the answer'
         d['candidates'] = words[:4]
