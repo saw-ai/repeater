@@ -14,7 +14,7 @@ try:
 except:
     matches = False
 
-if pids and matches:
+if pids and matches and my_pid not in pids:
     exit()
 
 if pids:
@@ -136,6 +136,7 @@ def send_text(message):
 
         d['mode'] = 'waiting for the answer'
         d['candidates'] = words[:4]
+        d['markup'] = markup
 
 
     elif message.text == '/word':
@@ -196,6 +197,12 @@ def send_text(message):
 
         d['mode'] = 'waiting for a word'
 
+        df = pd.read_csv('freq.csv').set_index('word')
+        amount = len(df)
+        known = len(df[df.status == 1])
+        unknown = len(df[df.status == 2])
+        bot.send_message(message.chat.id, f'all: {amount}, known={known}, unknown={unknown}', reply_markup = d['markup'])
+
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         df = pd.read_csv('freq.csv').set_index('word')
         words = list(np.random.choice(df[df.status == 0].head(500).index, 4, replace=False)) + ['ALLRIGHT']
@@ -206,6 +213,7 @@ def send_text(message):
 
         d['mode'] = 'waiting for the answer'
         d['candidates'] = words[:4]
+        d['markup'] = markup
 
     dump()
 
