@@ -14,7 +14,7 @@ try:
 except:
     matches = False
 
-if pids and matches and my_pid not in pids:
+if pids and matches and len(pids) > 1:
     exit()
 
 if pids:
