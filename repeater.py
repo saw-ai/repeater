@@ -36,7 +36,9 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+from storage import Storage
 
+storage = Storage('storage.db')
 
 bot = telebot.TeleBot('1307955102:AAFjWxksNaeQNpna8kGMcRucCxwLz2GfYDE')
 
@@ -64,8 +66,9 @@ def dump():
     json.dump(v[0], open('vocab.json', 'w'))
 
 
-def create_picture():
-    bits = pd.read_csv('freq.csv').set_index('word')['status'].values
+def create_picture(user_id):
+
+    bits = np.array(storage.get_values(user_id))
     n = int(round(np.sqrt(len(bits)) + 0.5))
     bits = list(bits) + [0] * (n ** 2 - len(bits))
     bits = np.array(bits).reshape(n, n)
@@ -151,9 +154,7 @@ def send_text(message):
 
     elif message.text == '/freq':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        df = pd.read_csv('freq.csv').set_index('word')
-        words = list(np.random.choice(df[df.status == 0].head(500).index, 4, replace=False)) + ['ALLRIGHT']
-
+        words = storage.get_words(message.chat.id, 4, 500) + ['ALRIGHT']
         for word in words:
             markup.add(word)
         bot.send_message(message.chat.id, 'asking', reply_markup = markup)
@@ -176,12 +177,9 @@ def send_text(message):
 
     elif message.text == '/list':
 
-        df = pd.read_csv('freq.csv').set_index('word')
-
-        amount = len(df)
-        known = len(df[df.status == 1])
-        unknown = len(df[df.status == 2])
-
+        amount = storage.get_count(message.chat.id, None)
+        known = storage.get_count(message.chat.id, 1)
+        unknown = storage.get_count(message.chat.id, 2)
         send(f'all: {amount}, known={known}, unknown={unknown}')
 
     elif message.text == '/delete':
@@ -193,7 +191,7 @@ def send_text(message):
             bot.send_message(message.chat.id, "Нет такого слова, еще разок")
         else:
             del v[0][message.text]
-            send("Удалено! Теперь у заи {}".format(how_many(vsize())))
+            send("Удалено! Теперь у тебя {}".format(how_many(vsize())))
             d['mode'] = 'waiting for a word'
             options()
 
@@ -208,35 +206,27 @@ def send_text(message):
     elif d['mode'] == 'waiting for translation':
         v[0][d['word']] = message.text
         dump()
-        send("Теперь у заечки {}".format(how_many(vsize())))
+        send("Теперь у тебя {}".format(how_many(vsize())))
         d['mode'] = 'waiting for a word'
 
     elif d['mode'] == 'waiting for the answer':
 
 
-        if message.text == 'ALLRIGHT':
-            df = pd.read_csv('freq.csv').set_index('word')
-            for word in d['candidates']:
-                df.at[word, 'status'] = 1
-            df.to_csv('freq.csv') 
+        if message.text == 'ALRIGHT':
+            storage.change_status(message.chat.id, d['candidates'], 1)
         else:
-            df = pd.read_csv('freq.csv').set_index('word')
-            df.at[message.text, 'status'] = 2
-            df.to_csv('freq.csv')
-
+            storage.change_status(message.chat.id, [message.text], 2)
             send(f'The word "{message.text}" is marked as unknown')
 
         d['mode'] = 'waiting for a word'
 
-        df = pd.read_csv('freq.csv').set_index('word')
-        amount = len(df)
-        known = len(df[df.status == 1])
-        unknown = len(df[df.status == 2])
+        amount = storage.get_count(message.chat.id, None)
+        known = storage.get_count(message.chat.id, 1)
+        unknown = storage.get_count(message.chat.id, 2)
         bot.send_message(message.chat.id, f'all: {amount}, known={known}, unknown={unknown}', reply_markup = d['markup'])
 
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        df = pd.read_csv('freq.csv').set_index('word')
-        words = list(np.random.choice(df[df.status == 0].head(500).index, 4, replace=False)) + ['ALLRIGHT']
+        words = storage.get_words(message.chat.id, 4, 500) + ['ALRIGHT']
 
         for word in words:
             markup.add(word)
@@ -265,8 +255,6 @@ def switch(message):
     for button in buttons:
         markup.add(button)
     bot.send_message(message.chat.id, "Выбрать чат", reply_markup = markup)
-
-
 
 
 #bot.polling()
