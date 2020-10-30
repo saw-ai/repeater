@@ -218,6 +218,9 @@ def send_text(message):
 
     elif d['mode'] == 'waiting for the answer':
 
+        if 'candidates' not in d:
+            d['candidates'] = ['the']
+
 
         if message.text == 'ALRIGHT':
             storage.change_status(message.chat.id, d['candidates'], 1)
