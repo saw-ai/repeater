@@ -35,10 +35,11 @@ import random
 import numpy as np
 import pandas as pd
 from PIL import Image
+import threading
 
 from storage import Storage
 
-storage = Storage('storage.db')
+
 
 bot = telebot.TeleBot('1307955102:AAFjWxksNaeQNpna8kGMcRucCxwLz2GfYDE')
 
@@ -49,9 +50,7 @@ def start_message(message):
   options()
 
 
-d = dict()
-d['mode'] = 'waiting for a word'
-
+dd = defaultdict(dict)
 
 
 def load():
@@ -116,6 +115,16 @@ def how_many(x):
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
+  d = dd[message.chat.id]
+
+  if 'storage' not in d:
+      d['storage'] = Storage('storage.db')
+  storage = d['storage']
+  if 'mode' not in d:
+      d['mode'] = 'waiting for a word'
+
+   print (f'thread_id={threading.get_ident()}')
+
 
   def options():
     bot.send_message(message.chat.id, "/word - Добавить слово\n/freq - Test frequent words\n/test - Угадай слово\n/list - Список слов\n/delete - Удалить слово")
