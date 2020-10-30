@@ -161,7 +161,7 @@ def send_text(message):
             d['mode'] = 'waiting for the answer'
             d['correct'] = v[0][word]
 
-    elif message.text == '/freq':
+    elif 'candidates' not in d or message.text == '/freq':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
         words = storage.get_words(message.chat.id, 4, 500) + ['ALRIGHT']
         for word in words:
@@ -217,9 +217,6 @@ def send_text(message):
         d['mode'] = 'waiting for a word'
 
     elif d['mode'] == 'waiting for the answer':
-
-        if 'candidates' not in d:
-            d['candidates'] = ['the']
 
 
         if message.text == 'ALRIGHT':
