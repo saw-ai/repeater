@@ -121,7 +121,7 @@ def send_text(message):
   storage = Storage('storage.db')
 
   if 'mode' not in d:
-      d['mode'] = 'waiting for a word'
+      d['mode'] = 'waiting for the answer'
 
   print (f'thread_id={threading.get_ident()}')
 
@@ -186,7 +186,7 @@ def send_text(message):
 
     elif message.text == '/list':
 
-        words = storage.get_words(message.chat.id, 30, top=30, label=1)
+        words = storage.get_words(message.chat.id, 30, top=30, label=2)
         bot.send_message(message.chat.id, '\n'.join(words))
 
     elif False and message.text == '/delete':

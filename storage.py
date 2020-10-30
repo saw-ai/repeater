@@ -63,4 +63,4 @@ class Storage:
 #print (storage.get_words(user, 5))
 #storage = Storage()
 #print(storage.users)
-#print (Storage().get_count('id12345', 0))
+print (Storage('storage.db').get_words('id12345', 30, top=30, label=1))
