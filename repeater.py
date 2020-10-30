@@ -36,6 +36,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import threading
+from collections import defaultdict
 
 from storage import Storage
 
@@ -117,13 +118,12 @@ def how_many(x):
 def send_text(message):
   d = dd[message.chat.id]
 
-  if 'storage' not in d:
-      d['storage'] = Storage('storage.db')
-  storage = d['storage']
+  storage = Storage('storage.db')
+
   if 'mode' not in d:
       d['mode'] = 'waiting for a word'
 
-   print (f'thread_id={threading.get_ident()}')
+  print (f'thread_id={threading.get_ident()}')
 
 
   def options():
