@@ -127,16 +127,16 @@ def send_text(message):
 
 
   def options():
-    bot.send_message(message.chat.id, "/word - Добавить слово\n/freq - Test frequent words\n/test - Угадай слово\n/list - Список слов\n/delete - Удалить слово")
+    bot.send_message(message.chat.id, "/freq - Test frequent words\n/list - List of unknown words") #\n/test - Угадай слово\n/list - Список слов\n/delete - Удалить слово\n/word - Добавить слово\n")
   def send(text):
     bot.send_message(message.chat.id, text)
 
   try:
-    if message.text == 'delete_all_words':
+    if False and message.text == 'delete_all_words':
         v[0] = {'_all' : 0, '_correct' : 0} 
 
 
-    elif message.text == '/test':
+    elif False and message.text == '/test':
         if vsize() < 4:
             bot.send_message(message.chat.id, "Для теста нужно хотя бы 4 слова. Сейчас у тебя только {}. Набери /word, чтобы добавить слово".format(vsize()))
             d['mode'] = 'waiting for a word'
@@ -180,22 +180,20 @@ def send_text(message):
         bot.send_photo(message.chat.id, img)
         img.close()
 
-    elif message.text == '/word':
+    elif False and message.text == '/word':
         d['mode'] = 'waiting for a word'
         bot.send_message(message.chat.id, "Новое слово")
 
     elif message.text == '/list':
 
-        amount = storage.get_count(message.chat.id, None)
-        known = storage.get_count(message.chat.id, 1)
-        unknown = storage.get_count(message.chat.id, 2)
-        send(f'all: {amount}, known={known}, unknown={unknown}')
+        words = storage.get_words(message.chat.id, 30, top=30, label=1)
+        bot.send_message(message.chat.id, '\n'.join(words))
 
-    elif message.text == '/delete':
+    elif False and message.text == '/delete':
         d['mode'] = 'waiting for deletion'
         bot.send_message(message.chat.id, "Какое слово удалить?")
         
-    elif d['mode'] == 'waiting for deletion':
+    elif False and d['mode'] == 'waiting for deletion':
         if message.text not in v[0]:
             bot.send_message(message.chat.id, "Нет такого слова, еще разок")
         else:
@@ -204,7 +202,7 @@ def send_text(message):
             d['mode'] = 'waiting for a word'
             options()
 
-    elif d['mode'] == 'waiting for a word':
+    elif False and d['mode'] == 'waiting for a word':
         if not ( 'a' <= message.text[0] and message.text[0] <= 'z'):
             send("English word, please!")
         else:
@@ -212,7 +210,7 @@ def send_text(message):
             send("Теперь перевод")
             d['mode'] = 'waiting for translation'
 
-    elif d['mode'] == 'waiting for translation':
+    elif False and d['mode'] == 'waiting for translation':
         v[0][d['word']] = message.text
         dump()
         send("Теперь у тебя {}".format(how_many(vsize())))

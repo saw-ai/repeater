@@ -25,10 +25,10 @@ class Storage:
             self.conn.commit()
             self.users.add(user_id)
 
-    def get_words(self, user_id, count, top=500):
+    def get_words(self, user_id, count, top=500, label=0):
         self.add_user(user_id)
         cursor = self.conn.cursor()
-        cursor.execute(f"SELECT * from (SELECT word FROM WORDS WHERE `{user_id}`=0 LIMIT {top}) ORDER BY RANDOM() LIMIT {count};")
+        cursor.execute(f"SELECT * from (SELECT word FROM WORDS WHERE `{user_id}`={label} LIMIT {top}) ORDER BY RANDOM() LIMIT {count};")
         return list(map(lambda x : x[0], cursor.fetchall()))
 
 
