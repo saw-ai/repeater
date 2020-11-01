@@ -1,4 +1,5 @@
 # check if I already working with newest version
+
 import os
 my_pid = str(os.getpid())
 
@@ -35,6 +36,10 @@ import random
 import numpy as np
 import pandas as pd
 from PIL import Image
+import threading
+from collections import defaultdict
+
+from storage import Storage
 
 
 
@@ -47,9 +52,7 @@ def start_message(message):
   options()
 
 
-d = dict()
-d['mode'] = 'waiting for a word'
-
+dd = defaultdict(dict)
 
 
 def load():
@@ -64,8 +67,9 @@ def dump():
     json.dump(v[0], open('vocab.json', 'w'))
 
 
-def create_picture():
-    bits = pd.read_csv('freq.csv').set_index('word')['status'].values
+def create_picture(user_id):
+
+    bits = np.array(storage.get_values(user_id))
     n = int(round(np.sqrt(len(bits)) + 0.5))
     bits = list(bits) + [0] * (n ** 2 - len(bits))
     bits = np.array(bits).reshape(n, n)
@@ -113,18 +117,27 @@ def how_many(x):
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
+  d = dd[message.chat.id]
+
+  storage = Storage('storage.db')
+
+  if 'mode' not in d:
+      d['mode'] = 'waiting for the answer'
+
+  print (f'thread_id={threading.get_ident()}')
+
 
   def options():
-    bot.send_message(message.chat.id, "/word - Добавить слово\n/freq - Test frequent words\n/test - Угадай слово\n/list - Список слов\n/delete - Удалить слово")
+    bot.send_message(message.chat.id, "/freq - Test frequent words\n/list - List of unknown words") #\n/test - Угадай слово\n/list - Список слов\n/delete - Удалить слово\n/word - Добавить слово\n")
   def send(text):
     bot.send_message(message.chat.id, text)
 
   try:
-    if message.text == 'delete_all_words':
+    if False and message.text == 'delete_all_words':
         v[0] = {'_all' : 0, '_correct' : 0} 
 
 
-    elif message.text == '/test':
+    elif False and message.text == '/test':
         if vsize() < 4:
             bot.send_message(message.chat.id, "Для теста нужно хотя бы 4 слова. Сейчас у тебя только {}. Набери /word, чтобы добавить слово".format(vsize()))
             d['mode'] = 'waiting for a word'
@@ -149,11 +162,9 @@ def send_text(message):
             d['mode'] = 'waiting for the answer'
             d['correct'] = v[0][word]
 
-    elif message.text == '/freq':
+    elif 'candidates' not in d or message.text == '/freq':
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        df = pd.read_csv('freq.csv').set_index('word')
-        words = list(np.random.choice(df[df.status == 0].head(500).index, 4, replace=False)) + ['ALLRIGHT']
-
+        words = storage.get_words(message.chat.id, 4, 500) + ['ALRIGHT']
         for word in words:
             markup.add(word)
         bot.send_message(message.chat.id, 'asking', reply_markup = markup)
@@ -170,34 +181,29 @@ def send_text(message):
         bot.send_photo(message.chat.id, img)
         img.close()
 
-    elif message.text == '/word':
+    elif False and message.text == '/word':
         d['mode'] = 'waiting for a word'
         bot.send_message(message.chat.id, "Новое слово")
 
     elif message.text == '/list':
 
-        df = pd.read_csv('freq.csv').set_index('word')
+        words = storage.get_words(message.chat.id, 30, top=30, label=2)
+        bot.send_message(message.chat.id, '\n'.join(words))
 
-        amount = len(df)
-        known = len(df[df.status == 1])
-        unknown = len(df[df.status == 2])
-
-        send(f'all: {amount}, known={known}, unknown={unknown}')
-
-    elif message.text == '/delete':
+    elif False and message.text == '/delete':
         d['mode'] = 'waiting for deletion'
         bot.send_message(message.chat.id, "Какое слово удалить?")
         
-    elif d['mode'] == 'waiting for deletion':
+    elif False and d['mode'] == 'waiting for deletion':
         if message.text not in v[0]:
             bot.send_message(message.chat.id, "Нет такого слова, еще разок")
         else:
             del v[0][message.text]
-            send("Удалено! Теперь у заи {}".format(how_many(vsize())))
+            send("Удалено! Теперь у тебя {}".format(how_many(vsize())))
             d['mode'] = 'waiting for a word'
             options()
 
-    elif d['mode'] == 'waiting for a word':
+    elif False and d['mode'] == 'waiting for a word':
         if not ( 'a' <= message.text[0] and message.text[0] <= 'z'):
             send("English word, please!")
         else:
@@ -205,38 +211,30 @@ def send_text(message):
             send("Теперь перевод")
             d['mode'] = 'waiting for translation'
 
-    elif d['mode'] == 'waiting for translation':
+    elif False and d['mode'] == 'waiting for translation':
         v[0][d['word']] = message.text
         dump()
-        send("Теперь у заечки {}".format(how_many(vsize())))
+        send("Теперь у тебя {}".format(how_many(vsize())))
         d['mode'] = 'waiting for a word'
 
     elif d['mode'] == 'waiting for the answer':
 
 
-        if message.text == 'ALLRIGHT':
-            df = pd.read_csv('freq.csv').set_index('word')
-            for word in d['candidates']:
-                df.at[word, 'status'] = 1
-            df.to_csv('freq.csv') 
+        if message.text == 'ALRIGHT':
+            storage.change_status(message.chat.id, d['candidates'], 1)
         else:
-            df = pd.read_csv('freq.csv').set_index('word')
-            df.at[message.text, 'status'] = 2
-            df.to_csv('freq.csv')
-
+            storage.change_status(message.chat.id, [message.text], 2)
             send(f'The word "{message.text}" is marked as unknown')
 
         d['mode'] = 'waiting for a word'
 
-        df = pd.read_csv('freq.csv').set_index('word')
-        amount = len(df)
-        known = len(df[df.status == 1])
-        unknown = len(df[df.status == 2])
+        amount = storage.get_count(message.chat.id, None)
+        known = storage.get_count(message.chat.id, 1)
+        unknown = storage.get_count(message.chat.id, 2)
         bot.send_message(message.chat.id, f'all: {amount}, known={known}, unknown={unknown}', reply_markup = d['markup'])
 
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        df = pd.read_csv('freq.csv').set_index('word')
-        words = list(np.random.choice(df[df.status == 0].head(500).index, 4, replace=False)) + ['ALLRIGHT']
+        words = storage.get_words(message.chat.id, 4, 500) + ['ALRIGHT']
 
         for word in words:
             markup.add(word)
@@ -265,8 +263,6 @@ def switch(message):
     for button in buttons:
         markup.add(button)
     bot.send_message(message.chat.id, "Выбрать чат", reply_markup = markup)
-
-
 
 
 #bot.polling()
