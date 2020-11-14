@@ -147,7 +147,7 @@ def send_text(message):
                 f.write('\n\n')
                 f.write(text)
 
-            bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/transcript.py?v={watch_id}")
+            bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/transcript.py?v={watch_id}&user={message.chat.id}")
 
         elif False and message.text == 'delete_all_words':
             v[0] = {'_all' : 0, '_correct' : 0}
