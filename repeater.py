@@ -39,6 +39,8 @@ from PIL import Image
 import threading
 from collections import defaultdict
 from youtube_transcript_api import YouTubeTranscriptApi
+from bs4 import BeautifulSoup
+import requests
 
 
 from storage import Storage
@@ -138,9 +140,12 @@ def send_text(message):
             transcript = YouTubeTranscriptApi.get_transcript(watch_id)
             text = '\n\n'.join(map(lambda x: x['text'], transcript))
 
-            with open(f'/var/www/html/book/{watch_id}.txt', 'w') as f:
-                f.write(text)
+            title = BeautifulSoup(requests.get(message.text).text).find('meta', {'itemprop' : 'name'}).attrs['content']
 
+            with open(f'/var/www/html/book/{watch_id}.txt', 'w') as f:
+                f.write(title)
+                f.write('\n\n')
+                f.write(text)
 
             bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/transcript.py?v={watch_id}")
 
