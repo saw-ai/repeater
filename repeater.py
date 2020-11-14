@@ -35,6 +35,7 @@ import json
 import random
 import numpy as np
 import pandas as pd
+import string
 from PIL import Image
 import threading
 from collections import defaultdict
@@ -128,7 +129,6 @@ def send_text(message):
 
     print (f'thread_id={threading.get_ident()}')
 
-
     def options():
         bot.send_message(message.chat.id, "/freq - Test frequent words\n/list - List of unknown words") #\n/test - Угадай слово\n/list - Список слов\n/delete - Удалить слово\n/word - Добавить слово\n")
     def send(text):
@@ -148,6 +148,11 @@ def send_text(message):
                 f.write(text)
 
             bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/transcript.py?v={watch_id}&user={message.chat.id}")
+
+        elif message.text.startswith('https://') or message.text.startswith('http://'):
+            filename = ''.join(random.choice(string.ascii_letters) for i in range(10)) + '.html'
+            open(filename, 'w').write(requests.get(message.text))
+            bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/webpage.py?f={filename}&user={message.chat.id}")
 
         elif False and message.text == 'delete_all_words':
             v[0] = {'_all' : 0, '_correct' : 0}
