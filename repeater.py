@@ -137,7 +137,12 @@ def send_text(message):
             watch_id = message.text.split('/')[-1]
             transcript = YouTubeTranscriptApi.get_transcript(watch_id)
             text = '\n'.join(map(lambda x: x['text'], transcript))
-            bot.send_message(message.chat.id, text[:100])
+
+            with open(f'/var/www/html/book/{watch_id}.txt', 'w') as f:
+                f.write(text)
+
+
+            bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/transcript.py?v={watch_id}")
 
         elif False and message.text == 'delete_all_words':
             v[0] = {'_all' : 0, '_correct' : 0}
