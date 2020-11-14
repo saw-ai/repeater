@@ -24,7 +24,7 @@ class Storage:
 
     def add_user(self, user_id):
         if str(user_id) not in self.users:
-            self.cursor.execute(f"ALTER TABLE WORDS ADD COLUMN _{user_id} NUMBER default 0;")
+            self.cursor.execute(f"ALTER TABLE WORDS ADD COLUMN _{user_id} INT default 0;")
             self.conn.commit()
             self.users.add(user_id)
 
