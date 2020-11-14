@@ -151,7 +151,7 @@ def send_text(message):
 
         elif message.text.startswith('https://') or message.text.startswith('http://'):
             filename = ''.join(random.choice(string.ascii_letters) for i in range(10)) + '.html'
-            open(filename, 'w').write(requests.get(message.text))
+            open(filename, 'w').write(requests.get(message.text).text)
             bot.send_message(message.chat.id, f"http://91.92.136.172/cgi-bin/webpage.py?f={filename}&user={message.chat.id}")
 
         elif False and message.text == 'delete_all_words':
