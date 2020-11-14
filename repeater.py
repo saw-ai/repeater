@@ -136,7 +136,7 @@ def send_text(message):
         if message.text.startswith('https://youtu.be'):
             watch_id = message.text.split('/')[-1]
             transcript = YouTubeTranscriptApi.get_transcript(watch_id)
-            text = '\n'.join(map(lambda x: x['text'], transcript))
+            text = '\n\n'.join(map(lambda x: x['text'], transcript))
 
             with open(f'/var/www/html/book/{watch_id}.txt', 'w') as f:
                 f.write(text)
