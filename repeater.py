@@ -38,6 +38,8 @@ import pandas as pd
 from PIL import Image
 import threading
 from collections import defaultdict
+from youtube_transcript_api import YouTubeTranscriptApi
+
 
 from storage import Storage
 storage = Storage()
@@ -131,7 +133,13 @@ def send_text(message):
         bot.send_message(message.chat.id, text)
 
     try:
-        if False and message.text == 'delete_all_words':
+        if message.text.startswith('https://youtu.be'):
+            watch_id = message.text.split('/')[-1]
+            transcript = YouTubeTranscriptApi.get_transcript(watch_id)
+            text = '\n'.join(map(lambda x: x['text'], transcript))
+            bot.send_message(message.chat.id, text[:100])
+
+        elif False and message.text == 'delete_all_words':
             v[0] = {'_all' : 0, '_correct' : 0}
 
 
